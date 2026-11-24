@@ -216,6 +216,16 @@ pub fn get_lib_name_candidates(lib_name: &str) -> std::vec::Vec<std::string::Str
     let minor = env!("CUDA_MINOR_VERSION");
 
     [
+        // Versioned SONAMEs come first: dlopen matches them against the libraries
+        // already loaded, so a copy the host process loaded (e.g. from NVIDIA's pip
+        // wheels) is reused instead of a second copy being loaded through the
+        // unversioned development symlink. See issues #274, #296 and #603.
+        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.{major}"),
+        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.12"),
+        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.11"),
+        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.10"),
+        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.9"),
+        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.1"),
         std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}"),
         std::format!("{DLL_PREFIX}{lib_name}{pointer_width}{DLL_SUFFIX}"),
         std::format!("{DLL_PREFIX}{lib_name}{pointer_width}_{major}{DLL_SUFFIX}"),
@@ -230,14 +240,6 @@ pub fn get_lib_name_candidates(lib_name: &str) -> std::vec::Vec<std::string::Str
         std::format!("{DLL_PREFIX}{lib_name}{pointer_width}_{major}0_0{DLL_SUFFIX}"),
         // See issue #260
         std::format!("{DLL_PREFIX}{lib_name}{pointer_width}_9{DLL_SUFFIX}"),
-        // See issue #274
-        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.{major}"),
-        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.12"),
-        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.11"),
-        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.10"),
-        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.9"),
-        // See issue #296
-        std::format!("{DLL_PREFIX}{lib_name}{DLL_SUFFIX}.1"),
     ]
     .into()
 }
