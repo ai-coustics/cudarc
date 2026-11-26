@@ -123,6 +123,10 @@ impl BindingMerger {
 
     pub fn process_file(&mut self, path: &Path, version: &Version) -> Result<()> {
         self.n_versions += 1;
+        // Prevent path traversal attacks by rejecting paths containing '..'.
+        if path.components().any(|c| c == std::path::Component::ParentDir) {
+            return Err(anyhow::anyhow!("Invalid input: {}", path.display()));
+        }
         let content = std::fs::read_to_string(path)?;
         let file = syn::parse_file(&content)?;
 
